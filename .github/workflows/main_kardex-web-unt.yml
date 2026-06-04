@@ -22,23 +22,32 @@ jobs:
         with:
           php-version: '8.3'
 
-      - name: Check if composer.json exists
-        id: check_files
-        uses: andstor/file-existence-action@v1
-        with:
-          files: 'composer.json'
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-progress --no-dev
 
-      - name: Run composer install if composer.json exists
-        if: steps.check_files.outputs.files_exists == 'true'
-        run: composer validate --no-check-publish && composer install --prefer-dist --no-progress
+      - name: Create .env file
+        run: |
+          cat > .env << 'EOF'
+          APP_NAME=Kardex
+          APP_ENV=production
+          APP_KEY=base64:/P1lRJetGkmyd2yfn5c36cal5Fw2UPFsggP5YjtKUvI=
+          APP_DEBUG=false
+          APP_URL=https://kardex-web-unt-ftaad6dgbedbhhcu.centralus-01.azurewebsites.net
+          LOG_CHANNEL=stack
+          LOG_LEVEL=debug
+          DB_CONNECTION=sqlsrv
+          DB_HOST=kardex-server-unt.database.windows.net
+          DB_PORT=1433
+          DB_DATABASE=KardexDB
+          DB_USERNAME=admin_kardex
+          DB_PASSWORD=${{ secrets.DB_PASSWORD }}
+          CACHE_DRIVER=file
+          SESSION_DRIVER=file
+          SESSION_LIFETIME=120
+          QUEUE_CONNECTION=sync
+          EOF
 
-      - name: Copy .env file
-        run: cp .env.example .env
-
-      - name: Generate APP_KEY
-        run: php artisan key:generate
-
-      - name: Upload artifact for deployment job
+      - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: php-app
@@ -52,15 +61,10 @@ jobs:
       contents: read
 
     steps:
-      - name: Download artifact from build job
+      - name: Download artifact
         uses: actions/download-artifact@v4
         with:
           name: php-app
-
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: '8.3'
 
       - name: Login to Azure
         uses: azure/login@v2
@@ -71,15 +75,7 @@ jobs:
 
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
-        id: deploy-to-webapp
         with:
           app-name: 'kardex-web-unt'
           slot-name: 'Production'
           package: .
-
-      - name: Run Migrations via Azure CLI
-        uses: azure/cli@v2
-        with:
-          azcliversion: latest
-          inlineScript: |
-            az webapp ssh --resource-group rg-kardex-unt --name kardex-web-unt --command "cd /home/site/wwwroot && php artisan migrate --force && php artisan db:seed --force"
