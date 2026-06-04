@@ -29,7 +29,7 @@ jobs:
           APP_NAME=Kardex
           APP_ENV=production
           APP_KEY=base64:/P1lRJetGkmyd2yfn5c36cal5Fw2UPFsggP5YjtKUvI=
-          APP_DEBUG=true
+          APP_DEBUG=false
           APP_URL=https://kardex-web-unt-ftaad6dgbedbhhcu.centralus-01.azurewebsites.net
           LOG_CHANNEL=stack
           LOG_LEVEL=debug
@@ -43,6 +43,7 @@ jobs:
           SESSION_DRIVER=file
           SESSION_LIFETIME=120
           QUEUE_CONNECTION=sync
+          FORCE_HTTPS=true
           EOF
 
       - name: Fix document root
