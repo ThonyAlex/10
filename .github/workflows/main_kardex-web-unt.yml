@@ -1,5 +1,3 @@
-# Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
-# More GitHub Actions for Azure: https://github.com/Azure/actions
 name: Build and deploy PHP app to Azure Web App - kardex-web-unt
 
 on:
@@ -46,6 +44,12 @@ jobs:
           SESSION_LIFETIME=120
           QUEUE_CONNECTION=sync
           EOF
+
+      - name: Fix document root
+        run: |
+          cp public/index.php index.php
+          sed -i "s|__DIR__.'/../|__DIR__.'/public/../|g" index.php
+          cp public/.htaccess .htaccess 2>/dev/null || true
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
