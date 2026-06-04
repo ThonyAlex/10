@@ -22,8 +22,8 @@ jobs:
         with:
           php-version: '8.3'
 
-      - name: Install dependencies
-        run: composer install --prefer-dist --no-progress --no-dev
+      - name: Install Composer dependencies
+        run: composer install --prefer-dist --no-progress --no-dev --optimize-autoloader
 
       - name: Create .env file
         run: |
@@ -31,7 +31,7 @@ jobs:
           APP_NAME=Kardex
           APP_ENV=production
           APP_KEY=base64:/P1lRJetGkmyd2yfn5c36cal5Fw2UPFsggP5YjtKUvI=
-          APP_DEBUG=false
+          APP_DEBUG=true
           APP_URL=https://kardex-web-unt-ftaad6dgbedbhhcu.centralus-01.azurewebsites.net
           LOG_CHANNEL=stack
           LOG_LEVEL=debug
@@ -40,7 +40,7 @@ jobs:
           DB_PORT=1433
           DB_DATABASE=KardexDB
           DB_USERNAME=admin_kardex
-          DB_PASSWORD=${{ secrets.DB_PASSWORD }}
+          DB_PASSWORD=Dbkdx105
           CACHE_DRIVER=file
           SESSION_DRIVER=file
           SESSION_LIFETIME=120
